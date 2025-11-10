@@ -172,6 +172,57 @@ return res.status(404).send(`
   }
 });
 
+// --- эндпоинт /checkout ---
+app.post("/checkout", express.json(), async (req, res) => {
+  try {
+    const orderItems = req.body.items;
+
+    if (!orderItems || !Array.isArray(orderItems) || orderItems.length === 0) {
+      return res.status(400).send("пупупу..... ошибка! список товаров пуст или неверный формат");
+    }
+
+    // генерируем order_id (один на весь заказ)
+    const orderId = `order_${Date.now()}`;
+
+    // создаем массив записей для Supabase
+    const records = orderItems.map(item => ({
+      user_id: item.user_id,
+      item_id: item.item_id,
+      qty: item.qty,
+      total_price: item.total_price,
+      order_id: orderId
+    }));
+
+    const url = new URL(`${process.env.SUPABASE_URL}/rest/v1/orders`);
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "apikey": process.env.SUPABASE_KEY,
+        "Authorization": `Bearer ${process.env.SUPABASE_KEY}`,
+        "Content-Type": "application/json",
+        "Prefer": "return=representation"
+      },
+      body: JSON.stringify(records)
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Supabase error: ${text}`);
+    }
+
+    const data = await response.json();
+    res.status(201).json({
+      message: "круто! заказ сохранён",
+      order_id: orderId,
+      items_saved: data.length
+    });
+  } catch (err) {
+    res.status(500).send(`пупупу...... ошибка при оформлении заказа: ${err.message}`);
+  }
+});
+
+
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
