@@ -1,11 +1,15 @@
 import express from "express";
 import fetch from "node-fetch";
 import dotenv from "dotenv";
+import cors from "cors";
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+app.use(cors());
+app.use(express.json());
 //const SUPABASE_URL = "https://xvcussolbgdthrwjicuf.supabase.co";
 //const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2Y3Vzc29sYmdkdGhyd2ppY3VmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MjI1NTQ3MSwiZXhwIjoyMDc3ODMxNDcxfQ.JBOLkh_36jJVyxmc9JkIHIuNDjtZJXvdil49QG30fRg";
 
